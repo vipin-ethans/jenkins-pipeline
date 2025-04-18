@@ -3,15 +3,15 @@ pipeline {
 
     environment {
         TF_DIR = 'terraform'
-        AWS_REGION = 'us-east-1'
-        PEM_FILE = 'my-keypair.pem'
+        AWS_REGION = 'ap-south-a'
+        PEM_FILE = 'linux1.pem'
     }
 
     stages {
 
         stage('Clone Code') {
             steps {
-                git url: 'https://github.com/your-user/your-repo.git', branch: 'main'
+                git url: 'https://github.com/vipin-ethans/jenkins-pipeline.git', branch: 'master'
             }
         }
 
