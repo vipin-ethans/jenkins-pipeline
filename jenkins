@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    environment {
+        TF_DIR = 'terraform'
+        AWS_REGION = 'us-east-1'
+        PEM_FILE = 'my-keypair.pem'
+    }
+
+    stages {
+
+        stage('Clone Code') {
+            steps {
+                git url: 'https://github.com/your-user/your-repo.git', branch: 'main'
+            }
+        }
+
+        stage('Terraform Init & Apply') {
+            steps {
+                dir("${TF_DIR}") {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+
+        stage('Fetch EC2 IP') {
+            steps {
+                script {
+                    env.EC2_IP = sh(
+                        script: "terraform -chdir=${TF_DIR} output -raw public_ip",
+                        returnStdout: true
+                    ).trim()
+                    echo "EC2 IP: ${env.EC2_IP}"
+                }
+            }
+        }
+
+        stage('Deploy App to EC2') {
+            steps {
+                script {
+                    sleep(time: 60, unit: 'SECONDS')  // wait for EC2 to be ready
+                    sh "chmod 400 ${TF_DIR}/${PEM_FILE}"
+                    sh "./deploy.sh ${EC2_IP} ${TF_DIR}/${PEM_FILE}"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline Execution Complete'
+        }
+    }
+}
