@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         TF_DIR = 'terraform'
-        AWS_REGION = 'ap-south-a'
+        AWS_REGION = 'ap-south-1'
         PEM_FILE = 'linux1.pem'
     }
 
